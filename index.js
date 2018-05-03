@@ -65,7 +65,6 @@ util.inherits(Iterator, AbstractIterator)
 Iterator.prototype._next = function (cb) {
   if (!this._options.limit) return cb()
   if (this._buffer.length) {
-    console.log('----------------------------------------------------------------------', this._buffer.length)
     var args = this._buffer.shift()
     return cb.apply(null, args)
   }
