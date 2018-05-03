@@ -139,6 +139,8 @@ Level.destroy = function (db, cb) {
 
 Level.prototype._open = function (options, cb) {
   var self = this
+  var upgraded = false
+  var err = null
   var openRequest = window.indexedDB.open(PREFIX + this.location, 1)
 
   openRequest.onerror = function (e) {
@@ -146,14 +148,25 @@ Level.prototype._open = function (options, cb) {
   }
 
   openRequest.onsuccess = function (e) {
+    if (!upgraded && options.errorIfExists) err = new Error('Database exists')
+    if (err) {
+      e.target.result.close()
+      return cb(err)
+    }
+
     self.idb = e.target.result
     cb()
   }
 
   openRequest.onupgradeneeded = function (e) {
+    upgraded = true
     var db = e.target.result
+
     if (!db.objectStoreNames.contains(self.location)) {
-      db.createObjectStore(self.location, { keyPath: null, autoIncrement: false })
+      if (!options.createIfMissing) err = new Error('Database does not exist')
+      else db.createObjectStore(self.location, { keyPath: null, autoIncrement: false })
+    } else if (options.errorIfExists) {
+      err = new Error('Database exists')
     }
   }
 }
@@ -169,7 +182,6 @@ Level.prototype._get = function (key, options, cb) {
   }, function (err, value) {
     if (err) return cb(err)
     if (value === undefined) return cb(new Error('NotFound'))
-
     cb(null, toBufferOrString(value, options.asBuffer))
   })
 }
