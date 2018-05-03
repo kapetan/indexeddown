@@ -1,0 +1,40 @@
+{
+  "name": "indexeddown",
+  "version": "0.0.0",
+  "description": "Leveldown API implementation on top of IndexedDB",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard --verbose && npm run test-chrome",
+    "test-chrome": "browserify test/index.js | testling -x scripts/chrome.sh",
+    "test-firefox": "browserify test/index.js | testling -x scripts/firefox.sh",
+    "test-url": "browserify test/index.js | testling -u",
+    "demo-watch": "wzrd demo/index.js:demo/bundle.js",
+    "demo-build": "browserify demo/index.js -o demo/bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kapetan/indexeddown.git"
+  },
+  "keywords": [
+    "level",
+    "levelup",
+    "leveldown",
+    "indexeddb"
+  ],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kapetan/indexeddown/issues"
+  },
+  "homepage": "https://github.com/kapetan/indexeddown#readme",
+  "dependencies": {
+    "abstract-leveldown": "^4.0.3",
+    "ltgt": "^2.2.1"
+  },
+  "devDependencies": {
+    "browserify": "^16.2.0",
+    "standard": "^11.0.1",
+    "tape": "^4.9.0",
+    "testling": "^1.7.1",
+    "wzrd": "^1.5.0"
+  }
+}
