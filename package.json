@@ -1,6 +1,6 @@
 {
   "name": "indexeddown",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Leveldown API implementation on top of IndexedDB",
   "main": "index.js",
   "scripts": {
