@@ -24,3 +24,65 @@ iteratorTest.all(leveldownSnapshot, test, testCommon)
 
 iteratorTest.snapshot = noop
 iteratorTest.all(leveldown, test, testCommon)
+
+test('approximate size', function (t) {
+  var db = leveldown(testCommon.location())
+
+  t.test('open', function (t) {
+    db.open(function (err) {
+      t.end(err)
+    })
+  })
+
+  t.test('batch write', function (t) {
+    db.batch([
+      { type: 'put', key: 'key0', value: 'value0' },
+      { type: 'put', key: 'key1', value: 'value1' },
+      { type: 'put', key: 'key2', value: 'value2' },
+      { type: 'put', key: 'key3', value: 'value3' }
+    ], function (err) {
+      t.end(err)
+    })
+  })
+
+  t.test('without range', function (t) {
+    db.approximateSize(null, null, function (err, count) {
+      t.error(err)
+      t.equals(count, 4)
+      t.end()
+    })
+  })
+
+  t.test('range with lower bound', function (t) {
+    db.approximateSize('key1', null, function (err, count) {
+      t.error(err)
+      t.equals(count, 3)
+      t.end()
+    })
+  })
+
+  t.test('range with upper bound', function (t) {
+    db.approximateSize(null, 'key2', function (err, count) {
+      t.error(err)
+      t.equals(count, 2)
+      t.end()
+    })
+  })
+
+  t.test('range with bounds', function (t) {
+    db.approximateSize('key1', 'key2', function (err, count) {
+      t.error(err)
+      t.equals(count, 1)
+      t.end()
+    })
+  })
+
+  t.test('cleanup', function (t) {
+    db.close(function (err) {
+      t.error(err)
+      testCommon.cleanup(function (err) {
+        t.end(err)
+      })
+    })
+  })
+})

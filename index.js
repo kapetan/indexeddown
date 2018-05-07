@@ -137,6 +137,22 @@ Level.destroy = function (db, cb) {
   }
 }
 
+Level.prototype.approximateSize = function (start, end, options, cb) {
+  if (!cb) cb = options
+
+  if (typeof cb !== 'function') {
+    throw new Error('approximateSize() requires a callback argument')
+  }
+
+  if (start != null) start = this._serializeKey(start)
+  if (end != null) end = this._serializeKey(end)
+  var query = createKeyRange({ gte: start, lt: end })
+
+  this._transaction('readonly', function (store) {
+    return store.count(query)
+  }, cb)
+}
+
 Level.prototype._open = function (options, cb) {
   var self = this
   var upgraded = false
