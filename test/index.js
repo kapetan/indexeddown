@@ -86,3 +86,59 @@ test('approximate size', function (t) {
     })
   })
 })
+
+test('closing operation', function (t) {
+  var db = leveldown(testCommon.location())
+
+  t.test('open', function (t) {
+    db.open(function (err) {
+      t.end(err)
+    })
+  })
+
+  t.test('get while closing', function (t) {
+    db.close(function (err) {
+      t.error(err)
+    })
+
+    db.get('key', function (err) {
+      t.ok(err, err.message)
+      t.end()
+    })
+  })
+
+  t.test('cleanup', function (t) {
+    testCommon.cleanup(function (err) {
+      t.end(err)
+    })
+  })
+})
+
+test('closing iterator', function (t) {
+  var db = leveldown(testCommon.location())
+
+  t.test('open', function (t) {
+    db.open(function (err) {
+      t.end(err)
+    })
+  })
+
+  t.test('iterate while closing', function (t) {
+    db.close(function (err) {
+      t.error(err)
+    })
+
+    var it = db.iterator({ snapshot: true })
+
+    it.next(function (err) {
+      t.ok(err, err.message)
+      t.end()
+    })
+  })
+
+  t.test('cleanup', function (t) {
+    testCommon.cleanup(function (err) {
+      t.end(err)
+    })
+  })
+})

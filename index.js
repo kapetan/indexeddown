@@ -80,11 +80,7 @@ Iterator.prototype._cursor = function () {
   var self = this
   var db = this.db
   var options = this._options
-  var tx = db.idb.transaction(db.location, 'readonly')
-  var store = tx.objectStore(db.location)
-  var query = createKeyRange(options)
-  var direction = options.reverse ? 'prev' : 'next'
-  var count = 0
+  var tx = null
 
   var push = function () {
     var cb = self._cb
@@ -92,6 +88,17 @@ Iterator.prototype._cursor = function () {
     if (cb) cb.apply(null, arguments)
     else self._buffer.push(arguments)
   }
+
+  try {
+    tx = db.idb.transaction(db.location, 'readonly')
+  } catch (err) {
+    return push(err)
+  }
+
+  var store = tx.objectStore(db.location)
+  var query = createKeyRange(options)
+  var direction = options.reverse ? 'prev' : 'next'
+  var count = 0
 
   tx.onabort = function (err) {
     push(err)
@@ -238,7 +245,16 @@ Level.prototype._iterator = function (options) {
 }
 
 Level.prototype._transaction = function (mode, worker, cb) {
-  var tx = this.idb.transaction(this.location, mode)
+  var tx = null
+
+  try {
+    // Trying to access a closing db throws an error.
+    // Instead pass the error back to the callback.
+    tx = this.idb.transaction(this.location, mode)
+  } catch (err) {
+    return cb(err)
+  }
+
   var store = tx.objectStore(this.location)
   var result = null
 
